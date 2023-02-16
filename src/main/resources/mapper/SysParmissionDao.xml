@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenwenxing.springsecurityjwt.dao.SysParmissionDao">
+
+    <resultMap type="com.chenwenxing.springsecurityjwt.entity.SysParmission" id="SysParmissionMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="parentid" column="parentid" jdbcType="INTEGER"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="urlname" column="urlname" jdbcType="VARCHAR"/>
+        <result property="perms" column="perms" jdbcType="VARCHAR"/>
+        <collection property="roles" ofType="com.chenwenxing.springsecurityjwt.entity.SysRole">
+            <id property="id" column="rid"></id>
+            <result property="rolename" column="roleName"></result>
+            <result property="rolenameEn" column="roleName_en"></result>
+        </collection>
+    </resultMap>
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into security.sys_parmission(parentid, url, urlname, perms)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.parentid}, #{entity.url}, #{entity.urlname}, #{entity.perms})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into security.sys_parmission(parentid, url, urlname, perms)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.parentid}, #{entity.url}, #{entity.urlname}, #{entity.perms})
+        </foreach>
+        on duplicate key update
+        parentid = values(parentid) , url = values(url) , urlname = values(urlname) , perms = values(perms)
+    </insert>
+
+    <select id="getParmissions" resultMap="SysParmissionMap">
+        SELECT
+	p.*,
+	r.id AS rid,
+	r.roleName,
+	r.roleName_en
+FROM
+	sys_parmission p
+	LEFT JOIN sys_role_permission rp ON p.id = rp.permissionid
+	LEFT JOIN sys_role r ON rp.roleid = r.id
+    </select>
+
+</mapper>
+

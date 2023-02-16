@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chenwenxing.springsecurityjwt.dao.SysRoleDao">
+
+    <resultMap type="com.chenwenxing.springsecurityjwt.entity.SysRole" id="SysRoleMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="rolename" column="roleName" jdbcType="VARCHAR"/>
+        <result property="rolenameEn" column="roleName_en" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into security.sys_role(roleName, roleName_en)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.rolename}, #{entity.rolenameEn})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into security.sys_role(roleName, roleName_en)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.rolename}, #{entity.rolenameEn})
+        </foreach>
+        on duplicate key update
+        roleName = values(roleName) , roleName_en = values(roleName_en)
+    </insert>
+
+    <select id="getRoleByUserId" resultType="com.chenwenxing.springsecurityjwt.entity.SysRole">
+        SELECT r.* FROM sys_role r
+        left JOIN sys_user_role ur
+        ON r.id=ur.roleid
+        WHERE ur.userid=#{userId}
+    </select>
+
+
+</mapper>
+
